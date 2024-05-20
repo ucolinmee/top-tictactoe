@@ -4,20 +4,24 @@ function Gameboard() {
     const board = [];
 
     // Initialise the board with empty values
-    for (var i = 0; i < rows; i++) {
-        board[i] = [];
-        for (var j = 0; j < cols; j++) {
-            board[i].push("");
+    const resetBoard = () => {
+        for (var i = 0; i < rows; i++) {
+            board[i] = [];
+            for (var j = 0; j < cols; j++) {
+                board[i].push("");
+            }
         }
     }
-
+    
     const getBoard = () => board;
 
     const updateBoard = (move, symbol) => {
         board[move.row][move.col] = symbol;
     } 
 
-    return { getBoard, updateBoard };
+    resetBoard();
+
+    return { getBoard, updateBoard, resetBoard };
 }
 
 
@@ -97,13 +101,19 @@ function GameController() {
         return false;
     }
 
-    return { playRound, getCurrentPlayer, getBoard: board.getBoard };
+    return { 
+        playRound, 
+        getCurrentPlayer, 
+        getBoard: board.getBoard, 
+        resetBoard: board.resetBoard 
+    };
 }
 
 function ScreenController() {
     const game = GameController();
     const boardDiv = document.querySelector(".board");
     const currentPlayerDiv = document.querySelector(".turn");
+    const playAgainBtn = document.querySelector("button");
 
     const displayBoard = () => {
         boardDiv.innerHTML = "";
@@ -136,14 +146,29 @@ function ScreenController() {
         var move = e.target.id.split(",");
         var winner = game.playRound(move[0], move[1]);
         updateScreen();
-        if (winner !== undefined) 
-            displayWinner(winner)
+        if (winner !== undefined) {
+            displayWinner(winner);
+            playAgainBtn.classList.toggle("hidden");
+            boardDiv.removeEventListener("click", clickBoardHandler);
+        }  
     }
 
-    boardDiv.addEventListener("click", clickBoardHandler);
+    const playAgainClickHandler = () => {
+        game.resetBoard();
+        playAgainBtn.classList.toggle("hidden");
+        init();
+    }
 
-    // Initial render 
-    updateScreen();
+    const init = () => {
+        // Initial render 
+        updateScreen();
+
+        boardDiv.addEventListener("click", clickBoardHandler);
+    }
+
+    init();
+    playAgainBtn.addEventListener("click", playAgainClickHandler);
+    
 }
 
 ScreenController();
