@@ -12,29 +12,13 @@ function Gameboard() {
     }
 
     const getBoard = () => board;
-    
-    const printBoard = () => {
-        console.log(getBoard());
-    }
 
     const updateBoard = (move, symbol) => {
         board[move.row][move.col] = symbol;
     } 
 
-    return { getBoard, printBoard, updateBoard };
+    return { getBoard, updateBoard };
 }
-
-
-// function Player(playerSymbol) {
-//     let symbol = playerSymbol;
-//     const getSymbol = () => symbol;
-
-//     const setSymbol = (newSymbol) => {
-//         symbol = newSymbol;
-//     }
-
-//     return { getSymbol, setSymbol }
-// }
 
 
 function GameController() {
@@ -63,29 +47,18 @@ function GameController() {
         return board.getBoard()[move.row][move.col] === "" ? true : false;
     }
 
-    const printNewRound = () => {
-        board.printBoard();
-        console.log(`${getCurrentPlayer().name}'s turn.`);
-    }
-
-    const printWinner = () => {
-        board.printBoard();
-        console.log(`Game over. ${getCurrentPlayer().name} won.`);
-    }
-
     const playRound = (row, col) => {
         const move = {
             "row": Number(row), 
             "col": Number(col)
         }
+        const currentPlayer = getCurrentPlayer();
         if (isValidMove(move)) {
-            board.updateBoard(move, getCurrentPlayer().symbol);
-            if (checkWin(getCurrentPlayer().symbol)) {
-                printWinner();
-                return 1;
+            board.updateBoard(move, currentPlayer.symbol);
+            if (checkWin(currentPlayer.symbol)) {
+                return currentPlayer;
             } else {
                 switchPlayerTurn();
-                printNewRound();
             }
         } else {
             console.log("Move is invalid, please try again.");
@@ -124,25 +97,53 @@ function GameController() {
         return false;
     }
 
-    return { playRound, getCurrentPlayer };
+    return { playRound, getCurrentPlayer, getBoard: board.getBoard };
 }
 
 function ScreenController() {
-    const updateScreen = () => {
-        // display board
-        // display current player
+    const game = GameController();
+    const boardDiv = document.querySelector(".board");
+    const currentPlayerDiv = document.querySelector(".turn");
+
+    const displayBoard = () => {
+        boardDiv.innerHTML = "";
+        var board = game.getBoard();
+        
+        for (var i = 0; i <  board.length; i++) {
+            for (var j = 0; j < board[i].length; j++) {
+                var temp = document.createElement("div");
+                temp.setAttribute("id", `${i},${j}`);
+                const cellContent = board[i][j];
+                temp.textContent = cellContent;
+                boardDiv.appendChild(temp);
+            }
+        }
     }
 
-    const clickHandlerBoard = () => {
-        // get DOM click event when user plays
-        // calls game.playRound
-        // calls updateScreen
+    const updateScreen = () => {
+        displayBoard();
+
+        // display current player's turn
+        currentPlayerDiv.textContent = `${game.getCurrentPlayer().name}'s turn`;
     }
+
+    const displayWinner = (player) => {
+        currentPlayerDiv.textContent = `Game Over! ${player.name} won.`;
+    }
+    
+
+    const clickBoardHandler = (e) => {
+        var move = e.target.id.split(",");
+        var winner = game.playRound(move[0], move[1]);
+        updateScreen();
+        if (winner !== undefined) 
+            displayWinner(winner)
+    }
+
+    boardDiv.addEventListener("click", clickBoardHandler);
+
+    // Initial render 
+    updateScreen();
 }
 
-const game = GameController();
-// while (1) {
-//     var userInput = prompt("Which slot would you like to play? ").split(",");
-//     if (game.playRound(userInput[0], userInput[1])) 
-//         break;
-// } 
+ScreenController();
