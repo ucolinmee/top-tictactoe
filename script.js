@@ -130,27 +130,48 @@ function ScreenController() {
         }
     }
 
+    const displayText = (text) => {
+        currentPlayerDiv.textContent = text;
+    }
+
     const updateScreen = () => {
         displayBoard();
 
         // display current player's turn
-        currentPlayerDiv.textContent = `${game.getCurrentPlayer().name}'s turn`;
+        displayText(`${game.getCurrentPlayer().name}'s turn`);
     }
 
-    const displayWinner = (player) => {
-        currentPlayerDiv.textContent = `Game Over! ${player.name} won.`;
+    const checkGameStatus = (winner) => {
+        if (winner !== undefined) {
+            displayText(`Game Over! ${winner.name} won.`);
+            gameOver();
+        } else {
+            var fullBoard = true;
+            const currentBoard = game.getBoard();
+            for (var i = 0; i < currentBoard.length; i++) {
+                for (var j = 0; j < currentBoard[i].length; j++) {
+                    if (currentBoard[i][j] === "")
+                        fullBoard = false;
+                }
+            }
+
+            if (fullBoard) {
+                displayText(`Draw. Nobody wins.`);
+                gameOver();
+            }
+        }
     }
-    
+
+    const gameOver = () => {
+        playAgainBtn.classList.toggle("hidden");
+        boardDiv.removeEventListener("click", clickBoardHandler);
+    }
 
     const clickBoardHandler = (e) => {
         var move = e.target.id.split(",");
         var winner = game.playRound(move[0], move[1]);
         updateScreen();
-        if (winner !== undefined) {
-            displayWinner(winner);
-            playAgainBtn.classList.toggle("hidden");
-            boardDiv.removeEventListener("click", clickBoardHandler);
-        }  
+        checkGameStatus(winner);
     }
 
     const playAgainClickHandler = () => {
