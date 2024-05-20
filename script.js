@@ -42,11 +42,11 @@ function GameController() {
 
     const players = [
         {
-            name: "Player One",
+            name: "Player X",
             symbol: "X"
         },
         {
-            name: "Player Two",
+            name: "Player O",
             symbol: "O"
         }
     ];
@@ -68,18 +68,25 @@ function GameController() {
         console.log(`${getCurrentPlayer().name}'s turn.`);
     }
 
+    const printWinner = () => {
+        board.printBoard();
+        console.log(`Game over. ${getCurrentPlayer().name} won.`);
+    }
+
     const playRound = (row, col) => {
         const move = {
             "row": Number(row), 
             "col": Number(col)
         }
-        console.log(`Checking move validity: Row=${row}, Col=${col}`);
-        // console.log(`Move valid: ${isValidMove(move)}`);
         if (isValidMove(move)) {
             board.updateBoard(move, getCurrentPlayer().symbol);
-            console.log(checkWin(getCurrentPlayer().symbol));
-            switchPlayerTurn();
-            printNewRound();
+            if (checkWin(getCurrentPlayer().symbol)) {
+                printWinner();
+                return 1;
+            } else {
+                switchPlayerTurn();
+                printNewRound();
+            }
         } else {
             console.log("Move is invalid, please try again.");
         }
@@ -120,4 +127,22 @@ function GameController() {
     return { playRound, getCurrentPlayer };
 }
 
+function ScreenController() {
+    const updateScreen = () => {
+        // display board
+        // display current player
+    }
+
+    const clickHandlerBoard = () => {
+        // get DOM click event when user plays
+        // calls game.playRound
+        // calls updateScreen
+    }
+}
+
 const game = GameController();
+// while (1) {
+//     var userInput = prompt("Which slot would you like to play? ").split(",");
+//     if (game.playRound(userInput[0], userInput[1])) 
+//         break;
+// } 

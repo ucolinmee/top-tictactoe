@@ -1,3 +1,28 @@
-* {
-    background-color: rebeccapurple;
+body {
+    background-color: #212845;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.turn {
+    margin: 25px 0 75px 0;
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.board div {
+    background-color: white;
+    height: 100px;
+    width: 100px;
+    border: 1px solid #212845;
+    color: #212845;
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
